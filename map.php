@@ -75,7 +75,7 @@
                     width: 1,
                     // color: 'rgb(50, 50, 150)',
                     color: '#CD00CD',
-                    opacity: 0.1
+                    opacity: 0.2
                 },
 
                 data: data

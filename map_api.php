@@ -42,7 +42,7 @@ try {
     foreach ($hits as $hit){
         $source = $hit['_source'];
         $routes[] = array(
-            [$source['slng'],$source['sLat']],[$source['dlng'],$source['sLat']]
+            [$source['slng'],$source['sLat']],[$source['dlng'],$source['dlat']]
         );
 
     }
