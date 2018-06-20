@@ -21,17 +21,19 @@
     var myChart = echarts.init(dom);
     var app = {};
     option = null;
-    $.getJSON('./static/data/flights.json', function(data) {
+    $.getJSON('./map_api.php', function(data) {
 
-        function getAirportCoord(idx) {
-            return [data.airports[idx][3], data.airports[idx][4]];
-        }
-        var routes = data.routes.map(function(airline) {
-            return [
-                getAirportCoord(airline[1]),
-                getAirportCoord(airline[2])
-            ];
-        });
+        // function getAirportCoord(idx) {
+        //     return [data.airports[idx][3], data.airports[idx][4]];
+        // }
+        // var routes = data.routes.map(function(airline) {
+        //     return [
+        //         getAirportCoord(airline[1]),
+        //         getAirportCoord(airline[2])
+        //     ];
+        // });
+        // console.log(routes);
+        console.log(data);
 
         myChart.setOption({
             backgroundColor: '#000',
@@ -43,15 +45,15 @@
 
                 light: {
                     ambient: {
-                        intensity: 0.4
+                        intensity: 0.5
                     },
                     main: {
-                        intensity: 0.4
+                        intensity: 0.5
                     }
                 },
 
                 viewControl: {
-                    autoRotate: false
+                    autoRotate: true
                 }
             },
             series: {
@@ -62,13 +64,21 @@
 
                 blendMode: 'lighter',
 
+                effect: {
+                    show: true,
+                    period: 10,
+                    symbol: 'arrow',
+                    symbolSize: 100000
+                },
+
                 lineStyle: {
                     width: 1,
-                    color: 'rgb(50, 50, 150)',
+                    // color: 'rgb(50, 50, 150)',
+                    color: '#CD00CD',
                     opacity: 0.1
                 },
 
-                data: routes
+                data: data
             }
         });
     });;

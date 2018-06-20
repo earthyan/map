@@ -1,20 +1,28 @@
 <?php
 require_once 'conn.php';
 
-$body ='{
-	"from": 0,
-	"size": 0,
-	"aggregations": {
-		"desIP": {
-			"terms": {
-				"field": "desIP",
-				"size": 10,
-				"shard_size": 2000
-			}
-		}
-	}
-}';
-
+$body = array(
+    'from'=>0,
+    'size'=>5000,
+    'query'=>array(
+        'bool'=>array(
+            'filter'=>array(
+                'bool'=>array(
+                    'must'=>array(
+                        'range'=>array(
+                            'timestamp'=>array(
+                                'from'=>date('Y-m-d\TH:i:s',time()+8*3600-10*60),
+                                'to'=>null,
+                                'include_lower'=>false,
+                                'include_upper'=>true
+                            )
+                        )
+                    )
+                )
+            )
+        )
+    )
+);
 
 try {
     $params = array(
@@ -29,8 +37,19 @@ try {
         ]
     );
     $response = $client->search($params);
-    var_dump($response);die;
+    $hits = $response['hits']['hits'];
+    $routes = [];
+    foreach ($hits as $hit){
+        $source = $hit['_source'];
+        $routes[] = array(
+            [$source['slng'],$source['sLat']],[$source['dlng'],$source['sLat']]
+        );
+
+    }
+    echo  json_encode($routes,JSON_UNESCAPED_UNICODE);
 } catch (\Exception $e) {
     echo $e->getMessage();
 }
+
+
 

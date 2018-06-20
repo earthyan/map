@@ -5,81 +5,52 @@
     <title>折线图</title>
     <!-- 引入 echarts.js -->
     <script src="./static/js/echarts.min.js"></script>
+    <script src="./static/js/jquery.js"></script>
 </head>
 <body>
 <!-- 为ECharts准备一个具备大小（宽高）的Dom -->
-<div id="main" style="width: 600px;height:400px;"></div>
+<div id="main" style="width: 1200px;height:600px; margin: auto"></div>
 <script type="text/javascript">
     // 基于准备好的dom，初始化echarts实例
     var myChart = echarts.init(document.getElementById('main'));
-
-    // 指定图表的配置项和数据
-    option = {
-        title: {
-            text: '折线图堆叠'
-        },
-        tooltip: {
-            trigger: 'axis'
-        },
-        legend: {
-            data:['邮件营销','联盟广告','视频广告','直接访问','搜索引擎']
-        },
-        grid: {
-            left: '3%',
-            right: '4%',
-            bottom: '3%',
-            containLabel: true
-        },
-        toolbox: {
-            feature: {
-                saveAsImage: {}
-            }
-        },
-        xAxis: {
-            type: 'category',
-            boundaryGap: false,
-            data: ['周一','周二','周三','周四','周五','周六','周日']
-        },
-        yAxis: {
-            type: 'value'
-        },
-        series: [
-            {
-                name:'邮件营销',
-                type:'line',
-                stack: '总量',
-                data:[120, 132, 101, 134, 90, 230, 210]
+    $.get('./line_api.php').done(function (data) {
+        data = JSON.parse(data);
+        series = data;
+        console.log(data);
+        // 指定图表的配置项和数据
+        option = {
+            title: {
+                text: '服务器负载折线图'
             },
-            {
-                name:'联盟广告',
-                type:'line',
-                stack: '总量',
-                data:[220, 182, 191, 234, 290, 330, 310]
+            tooltip: {
+                trigger: 'axis'
             },
-            {
-                name:'视频广告',
-                type:'line',
-                stack: '总量',
-                data:[150, 232, 201, 154, 190, 330, 410]
+            legend: {
+                data:['最大值','最小值','平均值']
             },
-            {
-                name:'直接访问',
-                type:'line',
-                stack: '总量',
-                data:[320, 332, 301, 334, 390, 330, 320]
+            grid: {
+                left: '3%',
+                right: '4%',
+                bottom: '3%',
+                containLabel: true
             },
-            {
-                name:'搜索引擎',
-                type:'line',
-                stack: '总量',
-                data:[820, 932, 901, 934, 1290, 1330, 1320]
-            }
-        ]
-    };
-
-
-    // 使用刚指定的配置项和数据显示图表。
-    myChart.setOption(option);
+            toolbox: {
+                feature: {
+                    saveAsImage: {}
+                }
+            },
+            xAxis: {
+                type: 'category',
+                boundaryGap: false,
+                data: ['一','二','三','四','五','六','七','八','九','十']
+            },
+            yAxis: {
+                type: 'value'
+            },
+            series: series
+        };
+        myChart.setOption(option);
+    });
 </script>
 </body>
 </html>

@@ -1,7 +1,24 @@
 <?php
 require_once 'conn.php';
+require_once 'common.php';
 
-$body ='{
+$sourceIP_body ='{
+	"from": 0,
+	"size": 0,
+	"aggregations": {
+		"sourceIP": {
+			"terms": {
+				"field": "sourceIP",
+				"size": 10
+			}
+		}
+	}
+}';
+$sourceIpRes = elSearch($client,$sourceIP_body);
+$hits = $sourceIpRes['aggregations']['sourceIP']['buckets'];
+$sourceIPs = array_column($hits,'key');
+
+$desIP_body ='{
 	"from": 0,
 	"size": 0,
 	"aggregations": {
@@ -14,22 +31,38 @@ $body ='{
 		}
 	}
 }';
+$desRes = elSearch($client,$desIP_body);
+$hits = $desRes['aggregations']['desIP']['buckets'];
+$desIPs = array_column($hits,'key');
 
 
-try {
-    $params = array(
-        'index' => 'gnw-'.date('Ymd'),
-        'body' => is_array($body)?json_encode($body):$body,
-        'client' => [
-            'curl' => [
-                CURLOPT_HTTPHEADER => [
-                    'Content-type: application/json',
-                ]
-            ]
-        ]
-    );
-    $response = $client->search($params);
-    var_dump($response);die;
-} catch (\Exception $e) {
-    echo $e->getMessage();
+
+
+
+$data = [];
+foreach ($sourceIPs as $key=>$value){
+    foreach ($desIPs as $k=>$v){
+        $x_body = getBody($value,$v,1,'must');
+        $res = elSearch($client,$x_body);
+        if(!empty($hits = $res['hits']['hits'])){
+            $avg = $hits[0]['_source']['avg'];
+            $data[] = array($key,$k,$avg);
+        }else{
+            $data[] = array($key,$k,'-');
+        }
+    }
+
 }
+
+$result = array(
+    'data'=>$data,
+    'sourceIP'=>$sourceIPs,
+    'desIP'=>$desIPs
+);
+echo json_encode($result,JSON_UNESCAPED_UNICODE);
+
+
+
+
+
+
