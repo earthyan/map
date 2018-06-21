@@ -1,3 +1,23 @@
+<?php
+require_once 'conn.php';
+require_once 'common.php';
+
+$sourceIP_body ='{
+	"from": 0,
+	"size": 0,
+	"aggregations": {
+		"sourceIP": {
+			"terms": {
+				"field": "sourceIP",
+				"size": 20
+			}
+		}
+	}
+}';
+$sourceIpRes = elSearch($client,$sourceIP_body);
+$hits = $sourceIpRes['aggregations']['sourceIP']['buckets'];
+$sourceIPs = json_encode(array_column($hits,'key'));
+?>
 <!DOCTYPE html>
 <html style="height: 100%">
 <head>
@@ -21,70 +41,71 @@
     var myChart = echarts.init(dom);
     var app = {};
     option = null;
-    $.getJSON('./map_api.php', function(data) {
+    var ips = <?php echo $sourceIPs;?>;
+    console.log(ips);
+    api(ips[0]);
 
-        // function getAirportCoord(idx) {
-        //     return [data.airports[idx][3], data.airports[idx][4]];
-        // }
-        // var routes = data.routes.map(function(airline) {
-        //     return [
-        //         getAirportCoord(airline[1]),
-        //         getAirportCoord(airline[2])
-        //     ];
-        // });
-        // console.log(routes);
-        console.log(data);
+    function api(ip){
+        $.getJSON('./map_api.php',{'ip': ip}, function(data) {
+            console.log(data);
+            myChart.setOption({
+                backgroundColor: '#000',
+                globe: {
+                    baseTexture: './static/img/earth.jpg',
+                    heightTexture: './static/img/bathymetry_bw_composite_4k.jpg',
 
-        myChart.setOption({
-            backgroundColor: '#000',
-            globe: {
-                baseTexture: './static/img/earth.jpg',
-                heightTexture: './static/img/bathymetry_bw_composite_4k.jpg',
+                    shading: 'lambert',
 
-                shading: 'lambert',
-
-                light: {
-                    ambient: {
-                        intensity: 0.5
+                    light: {
+                        ambient: {
+                            intensity: 0.5
+                        },
+                        main: {
+                            intensity: 0.5
+                        }
                     },
-                    main: {
-                        intensity: 0.5
+
+                    viewControl: {
+                        autoRotate: true,
+                        autoRotateSpeed: 16,
                     }
                 },
+                series: {
 
-                viewControl: {
-                    autoRotate: true
+                    type: 'lines3D',
+
+                    coordinateSystem: 'globe',
+
+                    blendMode: 'lighter',
+
+                    effect: {
+                        show: true,
+                        period: 10,
+                        symbol: 'arrow',
+                        symbolSize: 100000
+                    },
+
+                    // lineStyle: {
+                    //     width: 1,
+                    //     color: '#FFB90F',
+                    //     opacity: 0.2
+                    // },
+
+                    data: data
                 }
-            },
-            series: {
-
-                type: 'lines3D',
-
-                coordinateSystem: 'globe',
-
-                blendMode: 'lighter',
-
-                effect: {
-                    show: true,
-                    period: 10,
-                    symbol: 'arrow',
-                    symbolSize: 100000
-                },
-
-                lineStyle: {
-                    width: 1,
-                    // color: 'rgb(50, 50, 150)',
-                    color: '#CD00CD',
-                    opacity: 0.2
-                },
-
-                data: data
-            }
+            });
         });
-    });;
-    if (option && typeof option === "object") {
-        myChart.setOption(option, true);
     }
+    var index=1;
+    setInterval(function () {
+        api(ips[index]);
+        if(index<ips.length-1){
+            index++;
+        }else{
+            index=0
+        }
+    },12000);
+
 </script>
 </body>
 </html>

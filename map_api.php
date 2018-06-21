@@ -1,28 +1,10 @@
 <?php
 require_once 'conn.php';
+require_once 'common.php';
 
-$body = array(
-    'from'=>0,
-    'size'=>5000,
-    'query'=>array(
-        'bool'=>array(
-            'filter'=>array(
-                'bool'=>array(
-                    'must'=>array(
-                        'range'=>array(
-                            'timestamp'=>array(
-                                'from'=>date('Y-m-d\TH:i:s',time()+8*3600-10*60),
-                                'to'=>null,
-                                'include_lower'=>false,
-                                'include_upper'=>true
-                            )
-                        )
-                    )
-                )
-            )
-        )
-    )
-);
+$ip = trim($_GET['ip']);
+$body = getBody($ip,$ip,200,'should');
+
 
 try {
     $params = array(
@@ -41,10 +23,25 @@ try {
     $routes = [];
     foreach ($hits as $hit){
         $source = $hit['_source'];
-        $routes[] = array(
-            [$source['slng'],$source['sLat']],[$source['dlng'],$source['dlat']]
+        $avg = $source['avg'];
+        if($avg<200){
+            $color = '#0000FF';//蓝
+        }elseif ($avg>200 && $avg <500){
+            $color = '#FFFF00';//黄
+        }else{
+            $color = '#FF0000';//红
+        }
+        $lineStyle  = array(
+            'width'=>0.8,
+            'color'=>$color,
+            'opacity'=>0.8,
         );
-
+        $routes[] = array(
+            'coords'=> array([$source['slng'],$source['sLat']],[$source['dlng'],$source['dlat']]),
+            'value'=>$avg,
+            'name'=>'foo',
+            'lineStyle'=>$lineStyle,
+        );
     }
     echo  json_encode($routes,JSON_UNESCAPED_UNICODE);
 } catch (\Exception $e) {
