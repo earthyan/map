@@ -5,14 +5,26 @@
     <title>热力图</title>
     <!-- 引入 echarts.js -->
     <script src="./static/js/echarts.min.js"></script>
-    <script src="./static/js/jquery.js"></script>
+    <link rel="stylesheet" href="https://cdn.bootcss.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <script src="https://cdn.bootcss.com/jquery/2.1.1/jquery.min.js"></script>
+    <script src="https://cdn.bootcss.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
 </head>
 <body>
+<ul id="myTab" class="nav nav-tabs">
+    <li class="active"><a href="#up" data-toggle="tab">
+            上行</a></li>
+    <li><a href="#down" data-toggle="tab">下行</a></li>
+</ul>
+<div id="myTabContent" class="tab-content">
+    <div class="tab-pane fade in active" id="up">
+        <div id="main" style="width: 1600px;height:800px;margin: auto"></div>
+    </div>
+    <div class="tab-pane fade" id="down">
+        <div id="main1" style="width: 1600px;height:800px;margin: auto"></div>
+    </div>
+</div>
 <!-- 为ECharts准备一个具备大小（宽高）的Dom -->
-<h2 style="text-align:center">上行</h2>
-<div id="main" style="width: 1600px;height:800px;margin: auto"></div>
-<h2 style="text-align:center">下行</h2>
-<div id="main1" style="width: 1600px;height:800px;margin: auto"></div>
+
 <script type="text/javascript">
     // 基于准备好的dom，初始化echarts实例
     var myChart = echarts.init(document.getElementById('main'));
@@ -90,6 +102,18 @@
     }
 
 
+</script>
+<script>
+    $(function(){
+        $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
+            // 获取已激活的标签页的名称
+            var activeTab = $(e.target).text();
+            // 获取前一个激活的标签页的名称
+            var previousTab = $(e.relatedTarget).text();
+            $(".active-tab span").html(activeTab);
+            $(".previous-tab span").html(previousTab);
+        });
+    });
 </script>
 </body>
 </html>
