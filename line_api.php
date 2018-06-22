@@ -1,6 +1,7 @@
 <?php
 require_once 'conn.php';
 require_once 'common.php';
+
 $sourceIP_body ='{
 	"from": 0,
 	"size": 0,
@@ -18,6 +19,51 @@ $hits = $sourceIpRes['aggregations']['sourceIP']['buckets'];
 $sourceIPs = array_column($hits,'key');
 $sourceIP = $sourceIPs[0];
 $desIP = $sourceIPs[0];
+
+$ip = '118.89.140.128';
+
+$body = '{
+	"from": 0,
+	"size": 200,
+	"query": {
+		"bool": {
+			"filter": {
+				"bool": { 
+					"must": {
+						"match": {
+							"timestamp": {
+								"query": "2018-06-22T10:00:00",
+								"type": "phrase"
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+}';
+
+$body = array(
+    'from'=>0,
+    'size'=>200,
+    'query'=>array(
+        'bool'=>array(
+            'filter'=>array(
+                'bool'=>array(
+                    'must'=>array(
+                        'match'=>array(
+                            'timestamp'=>array(
+                                'query'=>$timestamp,
+                                'type'=>'phrase'
+                            )
+                        )
+                    )
+                )
+            )
+        )
+    ),
+);
+
 $body = getBody($sourceIP,$desIP,10,'should');
 $res = elSearch($client,$body);
 $hits = $res['hits']['hits'];
@@ -30,11 +76,6 @@ foreach ($hits as $hit){
     $avg[] = $hit['_source']['avg'];
 }
 
-echo json_encode(array(
-    array('name'=>'最大值','type'=>'line','stack'=>'总量','data'=>$max),
-    array('name'=>'最小值','type'=>'line','stack'=>'总量','data'=>$min),
-    array('name'=>'平均值','type'=>'line','stack'=>'总量','data'=>$avg),
 
-),JSON_UNESCAPED_UNICODE);
 
 
